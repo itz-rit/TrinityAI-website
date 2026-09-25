@@ -287,11 +287,12 @@ function AnimatedVisual({ type }: { type: string }) {
   }
 }
 
-function FeatureCard({ feature, cardRef }: { feature: typeof features[0]; cardRef: (element: HTMLDivElement | null) => void }) {
+function FeatureCard({ feature, index, cardRef }: { feature: typeof features[0]; index: number; cardRef: (element: HTMLDivElement | null) => void }) {
   return (
     <div
       ref={cardRef}
-      className="group absolute inset-0 z-10"
+      className="group absolute inset-0"
+      style={{ zIndex: index + 1 }}
     >
       <div className={`relative min-h-[25rem] overflow-hidden rounded-2xl border border-[#c9dff4] bg-gradient-to-br ${feature.tone} p-7 text-[#0b1b31] shadow-[0_18px_48px_rgba(33,92,145,0.12)] transition-transform duration-500 group-hover:-translate-y-1 sm:p-10 lg:min-h-[30rem] lg:p-14`}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(65,157,255,0.12),transparent_34%)]" />
@@ -342,17 +343,15 @@ export function FeaturesSection() {
     if (!scene || cards.length !== features.length) return;
 
     const context = gsap.context(() => {
-      gsap.set(cards, { autoAlpha: 0, yPercent: 110, scale: 0.96 });
-      gsap.set(cards[0], { autoAlpha: 1, yPercent: 0, scale: 1 });
+      gsap.set(cards, { yPercent: 110, scale: 0.96 });
+      gsap.set(cards[0], { yPercent: 0, scale: 1 });
 
       const timeline = gsap.timeline({
         scrollTrigger: {
           trigger: scene,
           start: "top top",
-          end: `+=${features.length * 125}%`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
+          end: "bottom bottom",
+          scrub: true,
           invalidateOnRefresh: true,
         },
       });
@@ -360,22 +359,12 @@ export function FeaturesSection() {
       cards.forEach((card, index) => {
         if (index > 0) {
           timeline.to(card, {
-            autoAlpha: 1,
             yPercent: 0,
             scale: 1,
-            duration: 0.22,
-            ease: "power2.out",
+            duration: 1,
+            ease: "none",
           });
         }
-
-        timeline.to({}, { duration: 0.28 });
-        timeline.to(card, {
-          autoAlpha: 0,
-          yPercent: -110,
-          scale: 0.97,
-          duration: 0.22,
-          ease: "power2.in",
-        });
       });
     }, scene);
 
@@ -411,16 +400,23 @@ export function FeaturesSection() {
         </div>
 
         {/* Pinned service card scene */}
-        <div ref={sceneRef} className="relative mt-16 h-[min(68vh,38rem)] min-h-[30rem] sm:min-h-[34rem] lg:mt-24 lg:h-[min(72vh,46rem)] lg:min-h-[38rem]">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={feature.number}
-              feature={feature}
-              cardRef={(element) => {
-                if (element) cardRefs.current[index] = element;
-              }}
-            />
-          ))}
+        <div
+          ref={sceneRef}
+          className="relative mt-16 lg:mt-24"
+          style={{ height: `calc(30rem + ${(features.length - 1) * 45}vh)` }}
+        >
+          <div className="sticky top-20 h-[30rem] sm:h-[34rem] lg:h-[min(72vh,46rem)]">
+            {features.map((feature, index) => (
+              <FeatureCard
+                key={feature.number}
+                feature={feature}
+                index={index}
+                cardRef={(element) => {
+                  if (element) cardRefs.current[index] = element;
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         <p className="mt-24 max-w-4xl border-t border-[#c9dff4] pt-8 text-xl leading-relaxed text-[#49647e] lg:mt-36 lg:text-3xl">

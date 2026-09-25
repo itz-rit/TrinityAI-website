@@ -22,6 +22,10 @@ const footerLinks = {
     { name: "Dharmapuri", href: "#contact" },
     { name: "Coimbatore", href: "#contact" },
   ],
+  Legal: [
+    { name: "Privacy Policy", href: "/privacy-policy" },
+    { name: "Terms & Conditions", href: "/terms-and-conditions" },
+  ],
 };
 
 const socialLinks = [
